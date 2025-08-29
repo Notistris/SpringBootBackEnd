@@ -1,5 +1,6 @@
 package com.notistris.identityservice.controller;
 
+import com.notistris.identityservice.dto.request.ApiResponse;
 import com.notistris.identityservice.dto.request.UserCreationRequest;
 import com.notistris.identityservice.dto.request.UserUpdateRequest;
 import com.notistris.identityservice.entity.User;
@@ -20,34 +21,35 @@ public class UserController {
     }
 
     @PostMapping
-    public User createUser(@RequestBody @Valid UserCreationRequest request) {
-        return userService.createUser(request);
+    public ApiResponse<User> createUser(@RequestBody @Valid UserCreationRequest request) {
+        return ApiResponse.success(userService.createUser(request));
     }
 
     @GetMapping
-    public List<User> getUsers() {
-        return userService.getUsers();
+    public ApiResponse<List<User>> getUsers() {
+        return ApiResponse.success(userService.getUsers());
     }
 
     @GetMapping("/{userId}")
-    public User getUser(@PathVariable(name = "userId") String userId) {
-        return userService.getUser(userId);
+    public ApiResponse<User> getUser(@PathVariable(name = "userId") String userId) {
+        return ApiResponse.success(userService.getUser(userId));
     }
 
     @PutMapping("/{userId}")
-    public User updateUser(@PathVariable(name = "userId") String userId, @RequestBody UserUpdateRequest request) {
-        return userService.updateUser(userId, request);
+    public ApiResponse<User> updateUser(@PathVariable(name = "userId") String userId,
+                                        @RequestBody @Valid UserUpdateRequest request) {
+        return ApiResponse.success(userService.updateUser(userId, request));
     }
 
     @DeleteMapping("/{userId}")
-    public String deleteUser(@PathVariable(name = "userId") String userId) {
+    public ApiResponse<String> deleteUser(@PathVariable(name = "userId") String userId) {
         userService.deleteUser(userId);
-        return "User has been deleted";
+        return ApiResponse.success("User has been deleted");
     }
 
     @DeleteMapping
-    public String deleteAllUsers() {
+    public ApiResponse<String> deleteAllUsers() {
         userService.deleteAllUsers();
-        return "All users have been deleted";
+        return ApiResponse.success("All users have been deleted");
     }
 }

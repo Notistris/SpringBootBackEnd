@@ -4,6 +4,8 @@ package com.notistris.identityservice.service;
 import com.notistris.identityservice.dto.request.UserCreationRequest;
 import com.notistris.identityservice.dto.request.UserUpdateRequest;
 import com.notistris.identityservice.entity.User;
+import com.notistris.identityservice.exception.AppException;
+import com.notistris.identityservice.exception.UserErrorCode;
 import com.notistris.identityservice.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -21,7 +24,7 @@ public class UserService {
         User user = new User();
 
         if (userRepository.existsByUsername(request.getUsername()))
-            throw new RuntimeException("User existed");
+            throw new AppException(UserErrorCode.USER_ALREADY_EXISTS);
 
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());
@@ -33,12 +36,12 @@ public class UserService {
         return user;
     }
 
-    public List<User> getUsers(){
+    public List<User> getUsers() {
         return userRepository.findAll();
     }
 
     public User getUser(String userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepository.findById(userId).orElseThrow(() -> new AppException(UserErrorCode.USER_NOT_FOUND));
     }
 
     public User updateUser(String userId, UserUpdateRequest request) {
