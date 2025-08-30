@@ -1,10 +1,8 @@
 package com.notistris.identityservice.exception;
 
-
 public enum UserErrorCode implements ErrorCode {
     USER_NOT_FOUND("USER_01", "User not found"),
     USER_ALREADY_EXISTS("USER_02", "User already exists");
-
 
     private final String code;
     private final String message;
@@ -24,4 +22,3 @@ public enum UserErrorCode implements ErrorCode {
         return message;
     }
 }
-

@@ -8,20 +8,19 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
-
 public class UserUpdateRequest {
 
-    @NotBlank(message = "Password must not be blank")
-    @Size(min = 8, message = "Password must be at least 8 characters")
+    @NotBlank(message = "PASSWORD_BLANK")
+    @Size(min = 8, message = "PASSWORD_INVALID")
     private String password;
 
-    @NotBlank(message = "FirstName must not be blank")
+    @NotBlank(message = "FIRSTNAME_BLANK")
     private String firstName;
 
-    @NotBlank(message = "LastName must not be blank")
+    @NotBlank(message = "LASTNAME_BLANK")
     private String lastName;
 
-    @Past
+    @Past(message = "DATE_PAST")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate dob;

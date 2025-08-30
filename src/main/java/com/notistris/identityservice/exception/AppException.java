@@ -1,6 +1,5 @@
 package com.notistris.identityservice.exception;
 
-
 public class AppException extends RuntimeException {
     private final ErrorCode errorCode;
 

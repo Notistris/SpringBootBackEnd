@@ -31,18 +31,18 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ApiResponse<User> getUser(@PathVariable(name = "userId") String userId) {
+    public ApiResponse<User> getUser(@PathVariable String userId) {
         return ApiResponse.success(userService.getUser(userId));
     }
 
     @PutMapping("/{userId}")
-    public ApiResponse<User> updateUser(@PathVariable(name = "userId") String userId,
-                                        @RequestBody @Valid UserUpdateRequest request) {
+    public ApiResponse<User> updateUser(@PathVariable String userId,
+            @RequestBody @Valid UserUpdateRequest request) {
         return ApiResponse.success(userService.updateUser(userId, request));
     }
 
     @DeleteMapping("/{userId}")
-    public ApiResponse<String> deleteUser(@PathVariable(name = "userId") String userId) {
+    public ApiResponse<String> deleteUser(@PathVariable String userId) {
         userService.deleteUser(userId);
         return ApiResponse.success("User has been deleted");
     }
