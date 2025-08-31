@@ -6,6 +6,8 @@ import com.notistris.identityservice.dto.request.UserUpdateRequest;
 import com.notistris.identityservice.entity.User;
 import com.notistris.identityservice.service.UserService;
 import jakarta.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,35 +23,41 @@ public class UserController {
     }
 
     @PostMapping
-    public ApiResponse<User> createUser(@RequestBody @Valid UserCreationRequest request) {
-        return ApiResponse.success(userService.createUser(request));
+    public ResponseEntity<ApiResponse<User>> createUser(@RequestBody @Valid UserCreationRequest request) {
+        ApiResponse<User> apiResponse = ApiResponse.success(userService.createUser(request));
+        return ResponseEntity.ok().body(apiResponse);
     }
 
     @GetMapping
-    public ApiResponse<List<User>> getUsers() {
-        return ApiResponse.success(userService.getUsers());
+    public ResponseEntity<ApiResponse<List<User>>> getUsers() {
+        ApiResponse<List<User>> apiResponse = ApiResponse.success(userService.getUsers());
+        return ResponseEntity.ok().body(apiResponse);
     }
 
     @GetMapping("/{userId}")
-    public ApiResponse<User> getUser(@PathVariable String userId) {
-        return ApiResponse.success(userService.getUser(userId));
+    public ResponseEntity<ApiResponse<User>> getUser(@PathVariable String userId) {
+        ApiResponse<User> apiResponse = ApiResponse.success(userService.getUser(userId));
+        return ResponseEntity.ok().body(apiResponse);
     }
 
     @PutMapping("/{userId}")
-    public ApiResponse<User> updateUser(@PathVariable String userId,
+    public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable String userId,
             @RequestBody @Valid UserUpdateRequest request) {
-        return ApiResponse.success(userService.updateUser(userId, request));
+        ApiResponse<User> apiResponse = ApiResponse.success(userService.updateUser(userId, request));
+        return ResponseEntity.ok().body(apiResponse);
     }
 
     @DeleteMapping("/{userId}")
-    public ApiResponse<String> deleteUser(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable String userId) {
         userService.deleteUser(userId);
-        return ApiResponse.success("User has been deleted");
+        ApiResponse<String> apiResponse = ApiResponse.success("User has been deleted");
+        return ResponseEntity.ok().body(apiResponse);
     }
 
     @DeleteMapping
-    public ApiResponse<String> deleteAllUsers() {
+    public ResponseEntity<ApiResponse<String>> deleteAllUsers() {
         userService.deleteAllUsers();
-        return ApiResponse.success("All users have been deleted");
+        ApiResponse<String> apiResponse = ApiResponse.success("All users have been deleted");
+        return ResponseEntity.ok().body(apiResponse);
     }
 }
