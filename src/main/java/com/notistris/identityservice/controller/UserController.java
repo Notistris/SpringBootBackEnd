@@ -1,12 +1,15 @@
 package com.notistris.identityservice.controller;
 
-import com.notistris.identityservice.dto.request.ApiResponse;
 import com.notistris.identityservice.dto.request.UserCreationRequest;
 import com.notistris.identityservice.dto.request.UserUpdateRequest;
-import com.notistris.identityservice.entity.User;
+import com.notistris.identityservice.dto.response.ApiResponse;
+import com.notistris.identityservice.dto.response.UserResponse;
 import com.notistris.identityservice.service.UserService;
 import jakarta.validation.Valid;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,36 +17,34 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE,   makeFinal = true)
 public class UserController {
 
-    private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    UserService userService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<User>> createUser(@RequestBody @Valid UserCreationRequest request) {
-        ApiResponse<User> apiResponse = ApiResponse.success(userService.createUser(request));
+    public ResponseEntity<ApiResponse<UserResponse>> createUser(@RequestBody @Valid UserCreationRequest request) {
+        ApiResponse<UserResponse> apiResponse = ApiResponse.success(userService.createUser(request));
         return ResponseEntity.ok().body(apiResponse);
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<User>>> getUsers() {
-        ApiResponse<List<User>> apiResponse = ApiResponse.success(userService.getUsers());
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getUsers() {
+        ApiResponse<List<UserResponse>> apiResponse = ApiResponse.success(userService.getUsers());
         return ResponseEntity.ok().body(apiResponse);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<ApiResponse<User>> getUser(@PathVariable String userId) {
-        ApiResponse<User> apiResponse = ApiResponse.success(userService.getUser(userId));
+    public ResponseEntity<ApiResponse<UserResponse>> getUser(@PathVariable String userId) {
+        ApiResponse<UserResponse> apiResponse = ApiResponse.success(userService.getUser(userId));
         return ResponseEntity.ok().body(apiResponse);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable String userId,
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable String userId,
             @RequestBody @Valid UserUpdateRequest request) {
-        ApiResponse<User> apiResponse = ApiResponse.success(userService.updateUser(userId, request));
+        ApiResponse<UserResponse> apiResponse = ApiResponse.success(userService.updateUser(userId, request));
         return ResponseEntity.ok().body(apiResponse);
     }
 
@@ -60,4 +61,5 @@ public class UserController {
         ApiResponse<String> apiResponse = ApiResponse.success("All users have been deleted");
         return ResponseEntity.ok().body(apiResponse);
     }
+
 }

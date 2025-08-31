@@ -1,7 +1,5 @@
 package com.notistris.identityservice.exception;
 
-import com.notistris.identityservice.dto.request.ApiResponse;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -10,6 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
+
+import com.notistris.identityservice.dto.response.ApiResponse;
 
 import java.util.Objects;
 
@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
 
         try {
             errorCode = ValidationErrorCode.valueOf(enumKey);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
         }
 
         ApiResponse<ErrorCode> apiResponse = ApiResponse.error(errorCode);
@@ -54,15 +54,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = NoHandlerFoundException.class)
-    public ResponseEntity<ApiResponse<ErrorCode>> handlingNotFoundPathException(NoHandlerFoundException exception) {
+    public ResponseEntity<ApiResponse<ErrorCode>> handlingNotFoundPathException() {
         ApiResponse<ErrorCode> apiResponse = ApiResponse.error(GlobalErrorCode.NOT_FOUND);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponse);
     }
 
     @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ApiResponse<ErrorCode>> handlingMethodException(
-            HttpRequestMethodNotSupportedException exception) {
+    public ResponseEntity<ApiResponse<ErrorCode>> handlingMethodException() {
         ApiResponse<ErrorCode> apiResponse = ApiResponse.error(GlobalErrorCode.METHOD_NOT_ALLOWED);
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(apiResponse);
     }
+
 }

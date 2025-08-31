@@ -1,13 +1,15 @@
 package com.notistris.identityservice.exception;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.experimental.FieldDefaults;
+
+@Getter
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AppException extends RuntimeException {
-    private final ErrorCode errorCode;
 
-    public AppException(ErrorCode errorCode) {
-        this.errorCode = errorCode;
-    }
+    ErrorCode errorCode;
 
-    public ErrorCode getErrorCode() {
-        return errorCode;
-    }
 }
