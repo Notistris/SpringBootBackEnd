@@ -8,11 +8,10 @@ import com.notistris.identityservice.exception.AppException;
 import com.notistris.identityservice.exception.UserErrorCode;
 import com.notistris.identityservice.mapper.UserMapper;
 import com.notistris.identityservice.repository.UserRepository;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +29,10 @@ public class UserService {
             throw new AppException(UserErrorCode.USER_ALREADY_EXISTS);
         User user = userMapper.toUser(request);
 
+        // Encode password
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
@@ -38,12 +41,12 @@ public class UserService {
     }
 
     public UserResponse getUser(String userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(UserErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(UserErrorCode.USER_NOT_EXISTS));
         return userMapper.toUserResponse(user);
     }
 
     public UserResponse updateUser(String userId, UserUpdateRequest request) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(UserErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(UserErrorCode.USER_NOT_EXISTS));
         userMapper.updateUser(user, request);
         return userMapper.toUserResponse(userRepository.save(user));
     }
