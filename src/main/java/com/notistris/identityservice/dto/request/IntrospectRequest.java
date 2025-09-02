@@ -1,5 +1,6 @@
-package com.notistris.identityservice.dto.response;
+package com.notistris.identityservice.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -8,10 +9,9 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationResponse {
+public class IntrospectRequest {
 
+    @NotBlank
     String token;
-    String refresh_token;
-    Integer duration;
 
 }
