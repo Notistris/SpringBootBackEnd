@@ -1,6 +1,5 @@
 package com.notistris.identityservice.controller;
 
-import com.nimbusds.jose.JOSEException;
 import com.notistris.identityservice.dto.request.AuthenticationRequest;
 import com.notistris.identityservice.dto.request.IntrospectRequest;
 import com.notistris.identityservice.dto.response.ApiResponse;
@@ -11,9 +10,6 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
-import java.text.ParseException;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,7 +34,7 @@ public class AuthenticationController {
 
     @PostMapping("/introspect")
     public ResponseEntity<ApiResponse<IntrospectResponse>> authenticate(
-            @RequestBody @Valid IntrospectRequest introspectRequest) throws JOSEException, ParseException {
+            @RequestBody @Valid IntrospectRequest introspectRequest) {
         ApiResponse<IntrospectResponse> apiResponse = ApiResponse
                 .success(authenticationService.introspect(introspectRequest));
         return ResponseEntity.ok().body(apiResponse);

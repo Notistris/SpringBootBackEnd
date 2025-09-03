@@ -1,4 +1,4 @@
-package com.notistris.identityservice.exception;
+package com.notistris.identityservice.enums;
 
 public interface ErrorCode {
 

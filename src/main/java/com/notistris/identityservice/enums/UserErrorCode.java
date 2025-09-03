@@ -1,5 +1,4 @@
-package com.notistris.identityservice.exception;
-
+package com.notistris.identityservice.enums;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -9,10 +8,12 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public enum AuthErrorCode implements ErrorCode {
+public enum UserErrorCode implements ErrorCode {
 
-    INCORRECT_CREDENTIALS("AUTH_01", "Incorrect username or password");
+    USER_NOT_EXISTS("USER_01", "User not exists"),
+    USER_ALREADY_EXISTS("USER_02", "User already exists");
 
     String code;
     String message;
+
 }

@@ -1,8 +1,7 @@
 package com.notistris.identityservice.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.notistris.identityservice.exception.ErrorCode;
-
+import com.notistris.identityservice.enums.ErrorCode;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

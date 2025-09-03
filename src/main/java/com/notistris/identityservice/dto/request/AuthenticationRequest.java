@@ -16,7 +16,7 @@ public class AuthenticationRequest {
     String username;
 
     @NotBlank(message = "PASSWORD_BLANK")
-    @Size(min = 8, message = "PASSWORD_INVALID")
+    @Size(min = 5, message = "PASSWORD_INVALID")
     String password;
 
 }

@@ -1,11 +1,6 @@
 package com.notistris.identityservice.service;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSObject;
-import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -15,23 +10,25 @@ import com.notistris.identityservice.dto.request.IntrospectRequest;
 import com.notistris.identityservice.dto.response.AuthenticationResponse;
 import com.notistris.identityservice.dto.response.IntrospectResponse;
 import com.notistris.identityservice.entity.User;
+import com.notistris.identityservice.enums.AuthErrorCode;
+import com.notistris.identityservice.enums.UserErrorCode;
 import com.notistris.identityservice.exception.AppException;
-import com.notistris.identityservice.exception.AuthErrorCode;
-import com.notistris.identityservice.exception.UserErrorCode;
 import com.notistris.identityservice.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
+import java.util.StringJoiner;
 
 @Service
 @RequiredArgsConstructor
@@ -39,22 +36,23 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AuthenticationService {
 
-    @NonFinal
-    protected static final String SIGNER_KEY = "f7rOO1YzHGfiblII7V/tOw5gjTldZd7zivb2XRgLZ361mtbqNhVXEK0QfKPOAQ5/";
     UserRepository userRepository;
+    PasswordEncoder passwordEncoder;
+    @NonFinal
+    @Value("${jwt.signerKey}")
+    protected String SIGNER_KEY;
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new AppException(UserErrorCode.USER_NOT_EXISTS));
 
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean isAuthenticated = passwordEncoder.matches(request.getPassword(),
                 user.getPassword());
 
         if (!isAuthenticated)
             throw new AppException(AuthErrorCode.INCORRECT_CREDENTIALS);
 
-        String token = generateToken(request.getUsername());
+        String token = generateToken(user);
 
         return AuthenticationResponse.builder()
                 .token(token)
@@ -62,16 +60,17 @@ public class AuthenticationService {
                 .build();
     }
 
-    private String generateToken(String username) {
+    private String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(username)
-                .issuer("notistris")
+                .issuer("com.notistris")
+                .subject(user.getId())
+                .claim("username", user.getUsername())
                 .issueTime(new Date())
                 .expirationTime(new Date(
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
-                .claim("UserId", "Custom")
+                .claim("scope", buildScope(user))
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -80,6 +79,7 @@ public class AuthenticationService {
 
         try {
             jwsObject.sign(new MACSigner(SIGNER_KEY));
+
             return jwsObject.serialize();
         } catch (JOSEException e) {
             log.error("Cannot create token", e);
@@ -87,21 +87,33 @@ public class AuthenticationService {
         }
     }
 
-    public IntrospectResponse introspect(IntrospectRequest request)
-            throws JOSEException, ParseException {
-        String token = request.getToken();
+    private String buildScope(User user) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if (!CollectionUtils.isEmpty(user.getRoles()))
+            user.getRoles().forEach(stringJoiner::add);
 
-        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+        return stringJoiner.toString();
+    }
 
-        SignedJWT signedJWT = SignedJWT.parse(token);
-
-        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-
-        boolean verified = signedJWT.verify(verifier);
+    public IntrospectResponse introspect(IntrospectRequest request) {
+        boolean valid = verifyToken(request.getToken());
 
         return IntrospectResponse.builder()
-                .valid(verified && expiryTime.after(new Date()))
+                .valid(valid)
                 .build();
+    }
+
+    private boolean verifyToken(String token) {
+        try {
+            JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+            boolean verified = signedJWT.verify(verifier);
+
+            return verified && expiryTime.after(new Date());
+        } catch (JOSEException | ParseException e) {
+            throw new AppException(AuthErrorCode.UNAUTHORIZED);
+        }
     }
 
 }

@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
-
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -21,7 +20,7 @@ public class UserCreationRequest {
     String username;
 
     @NotBlank(message = "PASSWORD_BLANK")
-    @Size(min = 8, message = "PASSWORD_INVALID")
+    @Size(min = 5, message = "PASSWORD_INVALID")
     String password;
 
     @NotBlank(message = "FIRSTNAME_BLANK")

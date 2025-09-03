@@ -1,4 +1,4 @@
-package com.notistris.identityservice.exception;
+package com.notistris.identityservice.enums;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -17,9 +17,10 @@ public enum ValidationErrorCode implements ErrorCode {
     FIRSTNAME_BLANK("INVALID_01", "FirstName must not be blank"),
     LASTNAME_BLANK("INVALID_01", "LastName must not be blank"),
     DATE_BLANK("INVALID_01", "Date must not be blank"),
+    TOKEN_BLANK("INVALID_01", "Token must no be blank"),
 
     USER_INVALID("INVALID_02", "Username must be at least 3 characters"),
-    PASSWORD_INVALID("INVALID_03", "Password must be at least 8 characters"),
+    PASSWORD_INVALID("INVALID_03", "Password must be at least 5 characters"),
 
     DATE_INVALID("INVALID_04", "Invalid date format (yyyy/mm/dd)"),
     DATE_PAST("INVALID_04", "Date must be in the past"),
