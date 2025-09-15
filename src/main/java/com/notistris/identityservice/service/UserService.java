@@ -3,11 +3,13 @@ package com.notistris.identityservice.service;
 import com.notistris.identityservice.dto.request.UserCreationRequest;
 import com.notistris.identityservice.dto.request.UserUpdateRequest;
 import com.notistris.identityservice.dto.response.UserResponse;
+import com.notistris.identityservice.entity.Role;
 import com.notistris.identityservice.entity.User;
-import com.notistris.identityservice.enums.Role;
+import com.notistris.identityservice.enums.RoleEnum;
 import com.notistris.identityservice.enums.UserErrorCode;
 import com.notistris.identityservice.exception.AppException;
 import com.notistris.identityservice.mapper.UserMapper;
+import com.notistris.identityservice.repository.RoleRepository;
 import com.notistris.identityservice.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -29,6 +32,7 @@ public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
+    RoleRepository roleRepository;
 
     public UserResponse createUser(UserCreationRequest request) {
         if (userRepository.existsByUsername(request.getUsername()))
@@ -38,14 +42,14 @@ public class UserService {
         // Encode password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        HashSet<String> roles = new HashSet<>();
-        roles.add(Role.USER.name());
-        user.setRoles(roles);
+        // Default user role
+        List<Role> roles = roleRepository.findAllById(Collections.singleton(RoleEnum.USER.name()));
+        user.setRoles(new HashSet<>(roles));
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<UserResponse> getUsers() {
         return userMapper.toUserResponseList(userRepository.findAll());
     }
@@ -67,14 +71,28 @@ public class UserService {
 
     @PreAuthorize("#userId == authentication.name or hasRole('ADMIN')")
     public UserResponse updateUser(String userId, UserUpdateRequest request) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(UserErrorCode.USER_NOT_EXISTS));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(UserErrorCode.USER_NOT_EXISTS));
         userMapper.updateUser(user, request);
 
-        // Encode password
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // Encode password if changing password
+        if (request.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        // If changing roles
+        if (request.getRoles() != null) {
+            if (request.getRoles().isEmpty()) {
+                user.setRoles(new HashSet<>());
+            } else {
+                List<Role> roles = roleRepository.findAllById(request.getRoles());
+                user.setRoles(new HashSet<>(roles));
+            }
+        }
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
+
 
     @PreAuthorize("#userId == authentication.name or hasRole('ADMIN')")
     public void deleteUser(String userId) {

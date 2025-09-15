@@ -1,0 +1,56 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: identity_service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mariadb
+    volumes:
+      - .:/app
+      - gradle_cache:/home/spring/.gradle
+    command: ./gradlew bootRun --no-daemon
+    environment:
+      # Server Configuration
+      - SERVER_PORT=8080
+      - SERVER_SERVLET_CONTEXT_PATH=/identity
+      
+      # Spring Configuration
+      - SPRING_WEB_RESOURCES_ADD_MAPPINGS=false
+      
+      # Database Configuration
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/identity_service
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      
+      # JPA Configuration
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+      
+      # JWT Configuration
+      - JWT_SIGNER_KEY=f7rOO1YzHGfiblII7V/tOw5gjTldZd7zivb2XRgLZ361mtbqNhVXEK0QfKPOAQ5/
+    networks:
+      - spring-net
+      
+  mariadb:
+    image: mariadb:lts-ubi9
+    container_name: springboot-mariadb
+    environment:
+      - MARIADB_ROOT_PASSWORD=root
+      - MARIADB_DATABASE=identity_service  # Creates the database automatically
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - spring-net
+      
+volumes:
+  mariadb_data:
+  gradle_cache:
+  
+networks:
+  spring-net:
+    driver: bridge

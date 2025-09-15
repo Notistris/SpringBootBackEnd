@@ -12,12 +12,7 @@ public enum ValidationErrorCode implements ErrorCode {
 
     MESSAGE_KEY_INVALID("INVALID_00", "Invalid message key"),
 
-    USER_BLANK("INVALID_01", "Username must not be blank"),
-    PASSWORD_BLANK("INVALID_01", "Password must not be blank"),
-    FIRSTNAME_BLANK("INVALID_01", "FirstName must not be blank"),
-    LASTNAME_BLANK("INVALID_01", "LastName must not be blank"),
-    DATE_BLANK("INVALID_01", "Date must not be blank"),
-    TOKEN_BLANK("INVALID_01", "Token must no be blank"),
+    FIELD_BLANK("INVALID_00", "Invalid request body"),
 
     USER_INVALID("INVALID_02", "Username must be at least 3 characters"),
     PASSWORD_INVALID("INVALID_03", "Password must be at least 5 characters"),

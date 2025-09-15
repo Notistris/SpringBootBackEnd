@@ -7,16 +7,18 @@ import com.notistris.identityservice.dto.response.UserResponse;
 import com.notistris.identityservice.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
-@AllArgsConstructor
+@RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
 
@@ -45,7 +47,7 @@ public class UserController {
         ApiResponse<UserResponse> apiResponse = ApiResponse.success(userService.getUser(userId));
         return ResponseEntity.ok().body(apiResponse);
     }
-    
+
     @PutMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable String userId,
                                                                 @RequestBody @Valid UserUpdateRequest request) {

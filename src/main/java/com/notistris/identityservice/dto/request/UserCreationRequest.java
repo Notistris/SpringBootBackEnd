@@ -15,18 +15,18 @@ import java.time.LocalDate;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreationRequest {
 
-    @NotBlank(message = "USER_BLANK")
+    @NotBlank(message = "FIELD_BLANK")
     @Size(min = 3, message = "USER_INVALID")
     String username;
 
-    @NotBlank(message = "PASSWORD_BLANK")
+    @NotBlank(message = "FIELD_BLANK")
     @Size(min = 5, message = "PASSWORD_INVALID")
     String password;
 
-    @NotBlank(message = "FIRSTNAME_BLANK")
+    @NotBlank(message = "FIELD_BLANK")
     String firstName;
 
-    @NotBlank(message = "LASTNAME_BLANK")
+    @NotBlank(message = "FIELD_BLANK")
     String lastName;
 
     @Past(message = "DATE_PAST")

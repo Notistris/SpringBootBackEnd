@@ -1,7 +1,9 @@
 package com.notistris.identityservice.config;
 
+import com.notistris.identityservice.entity.Role;
 import com.notistris.identityservice.entity.User;
-import com.notistris.identityservice.enums.Role;
+import com.notistris.identityservice.enums.RoleEnum;
+import com.notistris.identityservice.repository.RoleRepository;
 import com.notistris.identityservice.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +14,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 @Slf4j
 @Configuration
@@ -21,18 +25,18 @@ import java.util.HashSet;
 public class ApplicationInitConfig {
 
     PasswordEncoder passwordEncoder;
+    RoleRepository roleRepository;
 
     @Bean
     ApplicationRunner applicationRunner(UserRepository userRepository) {
         return args -> {
             if (userRepository.findByUsername("admin").isEmpty()) {
-                var roles = new HashSet<String>();
-                roles.add(Role.ADMIN.name());
+                List<Role> roles = roleRepository.findAllById(Collections.singleton(RoleEnum.ADMIN.name()));
 
                 User user = User.builder()
                         .username("admin")
                         .password(passwordEncoder.encode("admin"))
-                        .roles(roles)
+                        .roles(new HashSet<>(roles))
                         .build();
 
                 userRepository.save(user);
