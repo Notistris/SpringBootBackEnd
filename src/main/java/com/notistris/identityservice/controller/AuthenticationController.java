@@ -2,6 +2,8 @@ package com.notistris.identityservice.controller;
 
 import com.notistris.identityservice.dto.request.AuthenticationRequest;
 import com.notistris.identityservice.dto.request.IntrospectRequest;
+import com.notistris.identityservice.dto.request.LogoutRequest;
+import com.notistris.identityservice.dto.request.RefreshRequest;
 import com.notistris.identityservice.dto.response.ApiResponse;
 import com.notistris.identityservice.dto.response.AuthenticationResponse;
 import com.notistris.identityservice.dto.response.IntrospectResponse;
@@ -37,6 +39,21 @@ public class AuthenticationController {
             @RequestBody @Valid IntrospectRequest introspectRequest) {
         ApiResponse<IntrospectResponse> apiResponse = ApiResponse
                 .success(authenticationService.introspect(introspectRequest));
+        return ResponseEntity.ok().body(apiResponse);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logout(@RequestBody @Valid LogoutRequest logoutRequest) {
+        authenticationService.logout(logoutRequest);
+        ApiResponse<String> apiResponse = ApiResponse.success(null);
+        return ResponseEntity.ok().body(apiResponse);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<AuthenticationResponse>> refresh(
+            @RequestBody @Valid RefreshRequest refreshRequest) {
+        ApiResponse<AuthenticationResponse> apiResponse = ApiResponse
+                .success(authenticationService.refreshToken(refreshRequest));
         return ResponseEntity.ok().body(apiResponse);
     }
 

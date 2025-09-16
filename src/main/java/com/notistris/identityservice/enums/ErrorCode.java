@@ -1,5 +1,7 @@
 package com.notistris.identityservice.enums;
 
+import org.springframework.http.HttpStatus;
+
 public interface ErrorCode {
 
     String code = "ERROR_00";
@@ -9,4 +11,5 @@ public interface ErrorCode {
 
     String getMessage();
 
+    HttpStatus getHttpStatus();
 }

@@ -1,13 +1,12 @@
 package com.notistris.identityservice.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.notistris.identityservice.validator.DobConstraint;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -16,7 +15,7 @@ import java.time.LocalDate;
 public class UserCreationRequest {
 
     @NotBlank(message = "FIELD_BLANK")
-    @Size(min = 3, message = "USER_INVALID")
+    @Size(min = 5, message = "USER_INVALID")
     String username;
 
     @NotBlank(message = "FIELD_BLANK")
@@ -29,9 +28,7 @@ public class UserCreationRequest {
     @NotBlank(message = "FIELD_BLANK")
     String lastName;
 
-    @Past(message = "DATE_PAST")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @DobConstraint(min = 5, message = "DOB_INVALID")
+    @NotNull(message = "FIELD_BLANK")
     LocalDate dob;
-
 }

@@ -31,9 +31,11 @@ services:
       
       # JWT Configuration
       - JWT_SIGNER_KEY=f7rOO1YzHGfiblII7V/tOw5gjTldZd7zivb2XRgLZ361mtbqNhVXEK0QfKPOAQ5/
+      - JWT_VALID_DURATION=3600 # 1 hour
+      - JWT_REFRESHABLE_DURATION=86400 # 1 day
     networks:
       - spring-net
-      
+
   mariadb:
     image: mariadb:lts-ubi9
     container_name: springboot-mariadb
@@ -46,11 +48,11 @@ services:
       - mariadb_data:/var/lib/mysql
     networks:
       - spring-net
-      
+
 volumes:
   mariadb_data:
   gradle_cache:
-  
+
 networks:
   spring-net:
     driver: bridge

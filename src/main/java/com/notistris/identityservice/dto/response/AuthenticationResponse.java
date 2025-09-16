@@ -12,6 +12,6 @@ public class AuthenticationResponse {
 
     String token;
     String refresh_token;
-    Integer duration;
+    long duration;
 
 }

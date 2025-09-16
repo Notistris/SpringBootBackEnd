@@ -12,9 +12,9 @@ import lombok.experimental.FieldDefaults;
 public class AuthenticationRequest {
 
     @NotBlank(message = "FIELD_BLANK")
-    @Size(min = 3, message = "USER_INVALID")
+    @Size(min = 5, message = "USER_INVALID")
     String username;
-        
+
     @NotBlank(message = "FIELD_BLANK")
     @Size(min = 5, message = "PASSWORD_INVALID")
     String password;
