@@ -1,12 +1,11 @@
 package com.notistris.identityservice.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.Past;
+import com.notistris.identityservice.validator.DobConstraint;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,9 +19,8 @@ public class UserUpdateRequest {
     String firstName;
     String lastName;
 
-    @Past(message = "DATE_PAST")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @DobConstraint(min = 12, message = "DOB_INVALID")
+    @NotNull(message = "FIELD_BLANK")
     LocalDate dob;
     List<String> roles;
 

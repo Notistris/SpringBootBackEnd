@@ -10,6 +10,7 @@ import com.notistris.identityservice.repository.RoleRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -24,6 +25,7 @@ public class RoleService {
     PermissionRepository permissionRepository;
     RoleMapper roleMapper;
 
+    @PreAuthorize("hasRole('ADMIN')")
     public RoleResponse create(RoleRequest request) {
         Role role = roleMapper.toRole(request);
 
@@ -33,10 +35,12 @@ public class RoleService {
         return roleMapper.toRoleResponse(roleRepository.save(role));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public List<RoleResponse> getAll() {
         return roleMapper.toRoleResponseList(roleRepository.findAll());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteRole(String role) {
         roleRepository.deleteById(role);
     }
