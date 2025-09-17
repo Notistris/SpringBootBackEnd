@@ -1,8 +1,8 @@
 package com.notistris.identityservice.enums;
 
-public enum RoleEnum {
+public enum TokenType {
 
-    ADMIN,
-    USER
+    REFRESH,
+    ACCESS
 
 }

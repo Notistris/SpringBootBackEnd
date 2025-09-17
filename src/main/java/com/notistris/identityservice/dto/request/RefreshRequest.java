@@ -10,6 +10,6 @@ import lombok.experimental.FieldDefaults;
 public class RefreshRequest {
 
     @NotBlank(message = "FIELD_BLANK")
-    String token;
+    String refreshToken;
 
 }

@@ -31,4 +31,5 @@ public class UserCreationRequest {
     @DobConstraint(min = 5, message = "DOB_INVALID")
     @NotNull(message = "FIELD_BLANK")
     LocalDate dob;
+
 }

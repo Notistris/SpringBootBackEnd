@@ -1,6 +1,7 @@
 package com.notistris.identityservice.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.notistris.identityservice.config.filter.JwtBlacklistFilter;
 import com.notistris.identityservice.dto.response.ApiResponse;
 import com.notistris.identityservice.enums.AuthErrorCode;
 import com.notistris.identityservice.enums.ErrorCode;
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -35,7 +37,7 @@ public class SecurityConfig {
     CustomJwtDecoder customJwtDecoder;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtBlacklistFilter jwtBlacklistFilter) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         httpSecurity.authorizeHttpRequests(request ->
@@ -51,6 +53,8 @@ public class SecurityConfig {
         httpSecurity.exceptionHandling(ex ->
                 ex.authenticationEntryPoint(authenticationEntryPoint())
                         .accessDeniedHandler(accessDeniedHandler()));
+
+        httpSecurity.addFilterBefore(jwtBlacklistFilter, BearerTokenAuthenticationFilter.class);
 
         return httpSecurity.build();
     }

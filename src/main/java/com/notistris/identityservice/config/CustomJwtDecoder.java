@@ -1,12 +1,6 @@
 package com.notistris.identityservice.config;
 
-import com.notistris.identityservice.dto.request.IntrospectRequest;
-import com.notistris.identityservice.enums.AuthErrorCode;
-import com.notistris.identityservice.exception.AppException;
-import com.notistris.identityservice.service.AuthenticationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -21,23 +15,10 @@ public class CustomJwtDecoder implements JwtDecoder {
     @Value("${jwt.signer-key}")
     private String signerKey;
 
-    @Autowired
-    @Lazy
-    private AuthenticationService authenticationService;
-
     private NimbusJwtDecoder nimbusJwtDecoder = null;
 
     @Override
     public Jwt decode(String token) {
-
-
-        var response = authenticationService.introspect(IntrospectRequest.builder()
-                .token(token)
-                .build());
-
-        if (!response.isValid())
-            throw new AppException(AuthErrorCode.UNAUTHORIZED);
-
 
         if (Objects.isNull(nimbusJwtDecoder)) {
             SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");

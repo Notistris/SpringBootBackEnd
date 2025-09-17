@@ -1,6 +1,8 @@
 package com.notistris.identityservice.exception;
 
+import com.nimbusds.jose.JOSEException;
 import com.notistris.identityservice.dto.response.ApiResponse;
+import com.notistris.identityservice.enums.AuthErrorCode;
 import com.notistris.identityservice.enums.ErrorCode;
 import com.notistris.identityservice.enums.GlobalErrorCode;
 import com.notistris.identityservice.enums.ValidationErrorCode;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import java.text.ParseException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -39,11 +42,12 @@ public class GlobalExceptionHandler {
         try {
             errorCode = ValidationErrorCode.valueOf(enumKey);
 
-            ConstraintViolation<?> constraintViolation = exception.getBindingResult()
-                    .getAllErrors().getFirst().unwrap(ConstraintViolation.class);
+            if (errorCode.getMessage().contains("{")) {
+                ConstraintViolation<?> constraintViolation = exception.getBindingResult()
+                        .getAllErrors().getFirst().unwrap(ConstraintViolation.class);
 
-            attributes = constraintViolation.getConstraintDescriptor().getAttributes();
-
+                attributes = constraintViolation.getConstraintDescriptor().getAttributes();
+            }
         } catch (IllegalArgumentException ignored) {
         }
 
@@ -75,6 +79,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(apiResponse);
     }
 
+    @ExceptionHandler({JOSEException.class, ParseException.class})
+    public ResponseEntity<ApiResponse<ErrorCode>> handleJoseOrParseException() {
+        ApiResponse<ErrorCode> apiResponse = ApiResponse.error(AuthErrorCode.UNAUTHORIZED);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiResponse);
+    }
+
     private String mapAttribute(String message, Map<String, Object> attributes) {
         String minValue = attributes.get(MIN_ATTRIBUTE).toString();
 
@@ -97,4 +107,5 @@ public class GlobalExceptionHandler {
 
         return GlobalErrorCode.UNCATEGORIZED_ERROR;
     }
+
 }
