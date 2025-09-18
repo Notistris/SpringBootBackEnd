@@ -1,9 +1,9 @@
 package com.notistris.identityservice.repository;
 
-import com.notistris.identityservice.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.notistris.identityservice.entity.Role;
+
 @Repository
-public interface RoleRepository extends JpaRepository<Role, String> {
-}
+public interface RoleRepository extends JpaRepository<Role, String> {}

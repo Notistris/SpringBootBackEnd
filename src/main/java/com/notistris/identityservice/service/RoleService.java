@@ -1,5 +1,11 @@
 package com.notistris.identityservice.service;
 
+import java.util.HashSet;
+import java.util.List;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+
 import com.notistris.identityservice.dto.request.RoleRequest;
 import com.notistris.identityservice.dto.response.RoleResponse;
 import com.notistris.identityservice.entity.Permission;
@@ -7,14 +13,10 @@ import com.notistris.identityservice.entity.Role;
 import com.notistris.identityservice.mapper.RoleMapper;
 import com.notistris.identityservice.repository.PermissionRepository;
 import com.notistris.identityservice.repository.RoleRepository;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

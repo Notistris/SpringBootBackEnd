@@ -1,19 +1,21 @@
 package com.notistris.identityservice.controller;
 
+import java.util.List;
+
+import jakarta.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
 import com.notistris.identityservice.dto.request.RoleRequest;
 import com.notistris.identityservice.dto.response.ApiResponse;
 import com.notistris.identityservice.dto.response.RoleResponse;
 import com.notistris.identityservice.service.RoleService;
-import jakarta.validation.Valid;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/roles")

@@ -1,13 +1,11 @@
 package com.notistris.identityservice.exception;
 
-import com.nimbusds.jose.JOSEException;
-import com.notistris.identityservice.dto.response.ApiResponse;
-import com.notistris.identityservice.enums.AuthErrorCode;
-import com.notistris.identityservice.enums.ErrorCode;
-import com.notistris.identityservice.enums.GlobalErrorCode;
-import com.notistris.identityservice.enums.ValidationErrorCode;
+import java.text.ParseException;
+import java.util.Map;
+import java.util.Objects;
+
 import jakarta.validation.ConstraintViolation;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -17,9 +15,14 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import java.text.ParseException;
-import java.util.Map;
-import java.util.Objects;
+import com.nimbusds.jose.JOSEException;
+import com.notistris.identityservice.dto.response.ApiResponse;
+import com.notistris.identityservice.enums.AuthErrorCode;
+import com.notistris.identityservice.enums.ErrorCode;
+import com.notistris.identityservice.enums.GlobalErrorCode;
+import com.notistris.identityservice.enums.ValidationErrorCode;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ControllerAdvice
@@ -37,27 +40,28 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<ErrorCode>> handlingValidationException(
             MethodArgumentNotValidException exception) {
         String enumKey = Objects.requireNonNull(exception.getFieldError()).getDefaultMessage();
-        ErrorCode errorCode = ValidationErrorCode.MESSAGE_KEY_INVALID;
         Map<String, Object> attributes = null;
-        try {
-            errorCode = ValidationErrorCode.valueOf(enumKey);
 
-            if (errorCode.getMessage().contains("{")) {
-                ConstraintViolation<?> constraintViolation = exception.getBindingResult()
-                        .getAllErrors().getFirst().unwrap(ConstraintViolation.class);
+        ErrorCode errorCode = ValidationErrorCode.valueOf(enumKey);
 
-                attributes = constraintViolation.getConstraintDescriptor().getAttributes();
-            }
-        } catch (IllegalArgumentException ignored) {
+        if (errorCode.getMessage().contains("{")) {
+            ConstraintViolation<?> constraintViolation =
+                    exception.getBindingResult().getAllErrors().getFirst().unwrap(ConstraintViolation.class);
+
+            attributes = constraintViolation.getConstraintDescriptor().getAttributes();
         }
 
-        ApiResponse<ErrorCode> apiResponse = ApiResponse.error(errorCode.getCode(),
-                Objects.nonNull(attributes) ? mapAttribute(errorCode.getMessage(), attributes) : errorCode.getMessage());
+        ApiResponse<ErrorCode> apiResponse = ApiResponse.error(
+                errorCode.getCode(),
+                Objects.nonNull(attributes)
+                        ? mapAttribute(errorCode.getMessage(), attributes)
+                        : errorCode.getMessage());
         return ResponseEntity.status(errorCode.getHttpStatus()).body(apiResponse);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiResponse<ErrorCode>> handleHttpMessageNotReadable(HttpMessageNotReadableException exception) {
+    public ResponseEntity<ApiResponse<ErrorCode>> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException exception) {
         ErrorCode errorCode = mapToErrorCode(exception);
 
         if (errorCode == GlobalErrorCode.UNCATEGORIZED_ERROR)
@@ -100,12 +104,10 @@ public class GlobalExceptionHandler {
         if (cause instanceof com.fasterxml.jackson.core.JsonParseException) {
             return ValidationErrorCode.BODY_INVALID_FORMAT;
         }
-        if (exception.getMessage() != null
-                && exception.getMessage().contains("Required request body is missing")) {
+        if (exception.getMessage() != null && exception.getMessage().contains("Required request body is missing")) {
             return GlobalErrorCode.BODY_REQUIRED;
         }
 
         return GlobalErrorCode.UNCATEGORIZED_ERROR;
     }
-
 }

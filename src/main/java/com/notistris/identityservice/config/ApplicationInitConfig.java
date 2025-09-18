@@ -1,23 +1,25 @@
 package com.notistris.identityservice.config;
 
-import com.notistris.identityservice.entity.Role;
-import com.notistris.identityservice.entity.User;
-import com.notistris.identityservice.enums.RoleEnum;
-import com.notistris.identityservice.repository.RoleRepository;
-import com.notistris.identityservice.repository.UserRepository;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import com.notistris.identityservice.entity.Role;
+import com.notistris.identityservice.entity.User;
+import com.notistris.identityservice.enums.RoleEnum;
+import com.notistris.identityservice.repository.RoleRepository;
+import com.notistris.identityservice.repository.UserRepository;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
@@ -29,7 +31,9 @@ public class ApplicationInitConfig {
     RoleRepository roleRepository;
 
     @Bean
-    @ConditionalOnProperty(prefix = "spring", value = "datasource.driverClassName",
+    @ConditionalOnProperty(
+            prefix = "spring",
+            value = "datasource.driverClassName",
             havingValue = "org.mariadb.jdbc.Driver")
     ApplicationRunner applicationRunner(UserRepository userRepository) {
         return args -> {

@@ -1,6 +1,7 @@
 package com.notistris.identityservice.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -13,5 +14,4 @@ public class IntrospectRequest {
 
     @NotBlank(message = "FIELD_BLANK")
     String token;
-
 }

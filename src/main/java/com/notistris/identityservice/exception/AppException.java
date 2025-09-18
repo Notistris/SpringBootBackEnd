@@ -1,6 +1,7 @@
 package com.notistris.identityservice.exception;
 
 import com.notistris.identityservice.enums.ErrorCode;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,5 +13,4 @@ import lombok.experimental.FieldDefaults;
 public class AppException extends RuntimeException {
 
     ErrorCode errorCode;
-
 }

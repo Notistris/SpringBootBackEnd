@@ -1,12 +1,13 @@
 package com.notistris.identityservice.entity;
 
+import java.util.Set;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.Set;
 
 @Entity
 @Getter
@@ -24,6 +25,4 @@ public class Role {
 
     @ManyToMany
     Set<Permission> permissions;
-
 }
-

@@ -1,5 +1,15 @@
 package com.notistris.identityservice.service;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.notistris.identityservice.dto.request.UserCreationRequest;
 import com.notistris.identityservice.dto.request.UserUpdateRequest;
 import com.notistris.identityservice.dto.response.UserResponse;
@@ -11,18 +21,10 @@ import com.notistris.identityservice.exception.AppException;
 import com.notistris.identityservice.mapper.UserMapper;
 import com.notistris.identityservice.repository.RoleRepository;
 import com.notistris.identityservice.repository.UserRepository;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -71,8 +73,7 @@ public class UserService {
 
     @PreAuthorize("#userId == authentication.name or hasRole('ADMIN')")
     public UserResponse updateUser(String userId, UserUpdateRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(UserErrorCode.USER_NOT_EXISTS));
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(UserErrorCode.USER_NOT_EXISTS));
         userMapper.updateUser(user, request);
 
         // Encode password if changing password
@@ -93,7 +94,6 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-
     @PreAuthorize("#userId == authentication.name or hasRole('ADMIN')")
     public void deleteUser(String userId) {
         userRepository.deleteById(userId);
@@ -103,5 +103,4 @@ public class UserService {
     public void deleteAllUsers() {
         userRepository.deleteAll();
     }
-
 }

@@ -1,19 +1,22 @@
 package com.notistris.identityservice.controller;
 
+import java.util.List;
+
+import jakarta.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import com.notistris.identityservice.dto.request.UserCreationRequest;
 import com.notistris.identityservice.dto.request.UserUpdateRequest;
 import com.notistris.identityservice.dto.response.ApiResponse;
 import com.notistris.identityservice.dto.response.UserResponse;
 import com.notistris.identityservice.service.UserService;
-import jakarta.validation.Valid;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -49,8 +52,8 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable String userId,
-                                                                @RequestBody @Valid UserUpdateRequest request) {
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(
+            @PathVariable String userId, @RequestBody @Valid UserUpdateRequest request) {
         ApiResponse<UserResponse> apiResponse = ApiResponse.success(userService.updateUser(userId, request));
         return ResponseEntity.ok().body(apiResponse);
     }
@@ -68,5 +71,4 @@ public class UserController {
         ApiResponse<String> apiResponse = ApiResponse.success("All users have been deleted");
         return ResponseEntity.ok().body(apiResponse);
     }
-
 }

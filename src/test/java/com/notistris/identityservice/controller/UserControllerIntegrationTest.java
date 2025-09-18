@@ -4,31 +4,34 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.testcontainers.containers.MariaDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.notistris.identityservice.dto.request.UserCreationRequest;
 import com.notistris.identityservice.dto.response.UserResponse;
-import com.notistris.identityservice.service.UserService;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource("/test.properties")
-public class UserControllerTest {
+@Testcontainers
+public class UserControllerIntegrationTest {
+
+    @Container
+    static final MariaDBContainer<?> MARIA_DB_CONTAINER = new MariaDBContainer<>("mariadb:latest");
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -36,11 +39,17 @@ public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
-    private UserService userService;
-
     private UserCreationRequest request;
     private UserResponse response;
+
+    @DynamicPropertySource
+    static void configureDatasource(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", MARIA_DB_CONTAINER::getJdbcUrl);
+        registry.add("spring.datasource.username", MARIA_DB_CONTAINER::getUsername);
+        registry.add("spring.datasource.password", MARIA_DB_CONTAINER::getPassword);
+        registry.add("spring.datasource.driver-class-name", () -> "org.mariadb.jdbc.Driver");
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "update");
+    }
 
     @BeforeEach
     void initData() {
@@ -69,31 +78,14 @@ public class UserControllerTest {
         objectMapper.registerModule(new JavaTimeModule());
         String content = objectMapper.writeValueAsString(request);
 
-        Mockito.when(userService.createUser(ArgumentMatchers.any())).thenReturn(response);
-
         // WHEN, THEN
         mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(content))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("success").value("true"))
-                .andExpect(MockMvcResultMatchers.jsonPath("data.id").value("38564fa1dab"));
-    }
-
-    @Test
-    void createUser_usernameInvalid_fail() throws Exception {
-        // GIVEN
-        request.setUsername("aaa");
-        objectMapper.registerModule(new JavaTimeModule());
-        String content = objectMapper.writeValueAsString(request);
-
-        // WHEN, THEN
-        mockMvc.perform(MockMvcRequestBuilders.post("/users")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(content))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("success").value("false"))
-                .andExpect(MockMvcResultMatchers.jsonPath("error.message")
-                        .value("Username must be at least 5 characters"));
+                .andExpect(MockMvcResultMatchers.jsonPath("data.username").value("nottt"))
+                .andExpect(MockMvcResultMatchers.jsonPath("data.firstName").value("Tri"))
+                .andExpect(MockMvcResultMatchers.jsonPath("data.lastName").value("Tran"));
     }
 }

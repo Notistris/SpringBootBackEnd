@@ -2,6 +2,7 @@ package com.notistris.identityservice.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.notistris.identityservice.enums.ErrorCode;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,7 +13,6 @@ class ErrorResponse {
 
     String code;
     String message;
-
 }
 
 @Getter
@@ -24,7 +24,6 @@ abstract class BaseResponse<T> {
     boolean success;
     ErrorResponse error;
     T data;
-
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -50,5 +49,4 @@ public class ApiResponse<T> extends BaseResponse<T> {
         response.setError(new ErrorResponse(code, message));
         return response;
     }
-
 }

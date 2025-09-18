@@ -1,13 +1,5 @@
 package com.notistris.identityservice.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.notistris.identityservice.config.filter.JwtBlacklistFilter;
-import com.notistris.identityservice.dto.response.ApiResponse;
-import com.notistris.identityservice.enums.AuthErrorCode;
-import com.notistris.identityservice.enums.ErrorCode;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,6 +17,16 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.notistris.identityservice.config.filter.JwtBlacklistFilter;
+import com.notistris.identityservice.dto.response.ApiResponse;
+import com.notistris.identityservice.enums.AuthErrorCode;
+import com.notistris.identityservice.enums.ErrorCode;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -37,22 +39,22 @@ public class SecurityConfig {
     CustomJwtDecoder customJwtDecoder;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtBlacklistFilter jwtBlacklistFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtBlacklistFilter jwtBlacklistFilter)
+            throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
-        httpSecurity.authorizeHttpRequests(request ->
-                request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                        .anyRequest().authenticated());
+        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
+                .permitAll()
+                .anyRequest()
+                .authenticated());
 
-        httpSecurity.oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwtConfigurer ->
-                                jwtConfigurer.decoder(customJwtDecoder)
-                                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                        .authenticationEntryPoint(authenticationEntryPoint()));
+        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
+                        .decoder(customJwtDecoder)
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .authenticationEntryPoint(authenticationEntryPoint()));
 
         httpSecurity.exceptionHandling(ex ->
-                ex.authenticationEntryPoint(authenticationEntryPoint())
-                        .accessDeniedHandler(accessDeniedHandler()));
+                ex.authenticationEntryPoint(authenticationEntryPoint()).accessDeniedHandler(accessDeniedHandler()));
 
         httpSecurity.addFilterBefore(jwtBlacklistFilter, BearerTokenAuthenticationFilter.class);
 
@@ -69,7 +71,6 @@ public class SecurityConfig {
 
         return jwtAuthenticationConverter;
     }
-
 
     @Bean
     AuthenticationEntryPoint authenticationEntryPoint() {
@@ -97,5 +98,4 @@ public class SecurityConfig {
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
     }
-
 }

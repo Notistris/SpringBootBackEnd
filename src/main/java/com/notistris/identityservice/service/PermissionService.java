@@ -1,17 +1,19 @@
 package com.notistris.identityservice.service;
 
+import java.util.List;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+
 import com.notistris.identityservice.dto.request.PermissionRequest;
 import com.notistris.identityservice.dto.response.PermissionResponse;
 import com.notistris.identityservice.entity.Permission;
 import com.notistris.identityservice.mapper.PermissionMapper;
 import com.notistris.identityservice.repository.PermissionRepository;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,5 +38,4 @@ public class PermissionService {
     public void deletePermission(String permission) {
         permissionRepository.deleteById(permission);
     }
-
 }

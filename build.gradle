@@ -2,6 +2,8 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.5'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
+    id 'com.diffplug.spotless' version '6.25.0'
 }
 
 group = 'com.notistris'
@@ -11,6 +13,62 @@ description = 'Identity-service'
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.test {
+    useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport) // sinh report sau khi chạy test
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        xml.required = true
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, exclude: [
+                            '**/*Application.class',
+                            'com/notistris/identityservice/dto/**',
+                            'com/notistris/identityservice/entity/**',
+                            'com/notistris/identityservice/mapper/**',
+                            'com/notistris/identityservice/config/**',
+                            'com/notistris/identityservice/enums/**'
+                    ])
+                })
+        )
+    }
+
+}
+
+spotless {
+    java {
+        removeUnusedImports()
+        toggleOffOn()
+        trimTrailingWhitespace()
+        endWithNewline()
+        indentWithTabs(4)
+        palantirJavaFormat()
+
+        // Thứ tự import
+        importOrder('java', 'jakarta', 'org', 'com', 'com.diffplug')
+
+        target 'src/**/*.java'
+    }
+    // Nếu có code Kotlin
+    kotlin {
+        ktlint()
+        target 'src/**/*.kt'
     }
 }
 
@@ -59,9 +117,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    testImplementation platform("org.testcontainers:testcontainers-bom:1.21.3")
+    testImplementation "org.testcontainers:junit-jupiter"
+    testImplementation "org.testcontainers:mariadb"
 
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
 }

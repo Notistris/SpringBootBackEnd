@@ -1,16 +1,16 @@
 package com.notistris.identityservice.enums;
 
+import org.springframework.http.HttpStatus;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum ValidationErrorCode implements ErrorCode {
-
     MESSAGE_KEY_INVALID(HttpStatus.BAD_REQUEST, "INVALID_00", "Invalid message key"),
     FIELD_BLANK(HttpStatus.BAD_REQUEST, "INVALID_01", "Request body missing fields"),
     BODY_INVALID_FORMAT(HttpStatus.BAD_REQUEST, "INVALID_02", "Invalid body format"),
@@ -25,5 +25,4 @@ public enum ValidationErrorCode implements ErrorCode {
     HttpStatus httpStatus;
     String code;
     String message;
-
 }
