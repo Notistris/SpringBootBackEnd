@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -48,7 +49,11 @@ public class UserService {
         List<Role> roles = roleRepository.findAllById(Collections.singleton(RoleEnum.USER.name()));
         user.setRoles(new HashSet<>(roles));
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        try {
+            return userMapper.toUserResponse(userRepository.save(user));
+        } catch (DataIntegrityViolationException e) {
+            throw new AppException(UserErrorCode.USER_ALREADY_EXISTS);
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")

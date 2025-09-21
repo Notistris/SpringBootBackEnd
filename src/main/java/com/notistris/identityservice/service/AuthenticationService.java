@@ -8,6 +8,7 @@ import java.util.StringJoiner;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -19,8 +20,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.notistris.identityservice.dto.request.AuthenticationRequest;
 import com.notistris.identityservice.dto.request.IntrospectRequest;
-import com.notistris.identityservice.dto.request.LogoutRequest;
-import com.notistris.identityservice.dto.request.RefreshRequest;
+import com.notistris.identityservice.dto.response.AuthResult;
 import com.notistris.identityservice.dto.response.AuthenticationResponse;
 import com.notistris.identityservice.dto.response.IntrospectResponse;
 import com.notistris.identityservice.entity.InvalidatedToken;
@@ -60,7 +60,7 @@ public class AuthenticationService {
     @Value("${jwt.refreshable-duration}")
     protected long REFRESHABLE_DURATION;
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) throws JOSEException {
+    public AuthResult<AuthenticationResponse> authenticate(AuthenticationRequest request) throws JOSEException {
         User user = userRepository
                 .findByUsername(request.getUsername())
                 .orElseThrow(() -> new AppException(UserErrorCode.USER_NOT_EXISTS));
@@ -69,14 +69,7 @@ public class AuthenticationService {
 
         if (!isAuthenticated) throw new AppException(AuthErrorCode.INCORRECT_CREDENTIALS);
 
-        String accessToken = generateAccessToken(user);
-        String refreshToken = generateRefreshToken(user);
-
-        return AuthenticationResponse.builder()
-                .token(accessToken)
-                .refresh_token(refreshToken)
-                .duration(VALID_DURATION)
-                .build();
+        return generateAuthResponse(user);
     }
 
     public IntrospectResponse introspect(IntrospectRequest request) throws ParseException, JOSEException {
@@ -89,13 +82,23 @@ public class AuthenticationService {
         return IntrospectResponse.builder().valid(isValid).build();
     }
 
-    public void logout(LogoutRequest request) throws ParseException, JOSEException {
-        SignedJWT signToken = verifyToken(request.getToken());
+    public AuthResult<String> logout(String refreshToken) throws ParseException, JOSEException {
+        SignedJWT signToken = verifyToken(refreshToken);
         invalidateToken(signToken);
+
+        // xoá cookie refresh token
+        ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true) // bật khi chạy https
+                .path("auth") // trùng path với lúc set cookie
+                .maxAge(0)
+                .build();
+
+        return new AuthResult<>(null, deleteCookie);
     }
 
-    public AuthenticationResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
-        SignedJWT signedJWT = verifyToken(request.getRefreshToken());
+    public AuthResult<AuthenticationResponse> refreshToken(String refreshToken) throws ParseException, JOSEException {
+        SignedJWT signedJWT = verifyToken(refreshToken);
 
         String tokenType = signedJWT.getJWTClaimsSet().getStringClaim("typ");
         if (!TokenType.REFRESH.name().equals(tokenType)) {
@@ -106,14 +109,7 @@ public class AuthenticationService {
         String userId = signedJWT.getJWTClaimsSet().getSubject();
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(UserErrorCode.USER_NOT_EXISTS));
 
-        String token = generateAccessToken(user);
-        String refreshToken = generateRefreshToken(user);
-
-        return AuthenticationResponse.builder()
-                .token(token)
-                .refresh_token(refreshToken)
-                .duration(VALID_DURATION)
-                .build();
+        return generateAuthResponse(user);
     }
 
     private String buildScope(User user) {
@@ -133,7 +129,7 @@ public class AuthenticationService {
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .issuer("com.notistris")
                 .claim("typ", TokenType.ACCESS.name())
-                .claim("username", user.getUsername())
+                .subject(user.getId())
                 .issueTime(new Date())
                 .expirationTime(new Date(
                         Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
@@ -190,5 +186,26 @@ public class AuthenticationService {
         InvalidatedToken invalidatedToken =
                 InvalidatedToken.builder().jti(jti).expiryTime(expiryTime).build();
         invalidatedTokenRepository.save(invalidatedToken);
+    }
+
+    private AuthResult<AuthenticationResponse> generateAuthResponse(User user) throws JOSEException {
+
+        String accessToken = generateAccessToken(user);
+        String refreshToken = generateRefreshToken(user);
+
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true) // nên bật khi dùng https
+                .sameSite("Strict")
+                .path("auth") // cookie chỉ gửi khi gọi refresh
+                .maxAge(REFRESHABLE_DURATION) // thời hạn refreshToken
+                .build();
+
+        AuthenticationResponse response = AuthenticationResponse.builder()
+                .token(accessToken)
+                .duration(VALID_DURATION)
+                .build();
+
+        return new AuthResult<>(response, cookie);
     }
 }

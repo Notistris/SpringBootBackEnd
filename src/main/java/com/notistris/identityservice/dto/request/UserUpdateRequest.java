@@ -3,7 +3,6 @@ package com.notistris.identityservice.dto.request;
 import java.time.LocalDate;
 import java.util.List;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import com.notistris.identityservice.validator.DobConstraint;
@@ -23,7 +22,6 @@ public class UserUpdateRequest {
     String lastName;
 
     @DobConstraint(min = 12, message = "DOB_INVALID")
-    @NotNull(message = "FIELD_BLANK")
     LocalDate dob;
 
     List<String> roles;

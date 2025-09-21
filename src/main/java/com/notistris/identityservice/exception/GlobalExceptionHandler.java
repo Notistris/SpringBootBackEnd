@@ -9,6 +9,7 @@ import jakarta.validation.ConstraintViolation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -30,10 +31,23 @@ public class GlobalExceptionHandler {
 
     private static final String MIN_ATTRIBUTE = "min";
 
+    @ExceptionHandler(value = Exception.class)
+    public ResponseEntity<ApiResponse<ErrorCode>> handlingRuntimeException(RuntimeException exception) {
+        log.error("Exception: ", exception);
+        ApiResponse<ErrorCode> apiResponse = ApiResponse.error(GlobalErrorCode.UNCATEGORIZED_ERROR);
+        return ResponseEntity.badRequest().body(apiResponse);
+    }
+
     @ExceptionHandler(value = AppException.class)
     public ResponseEntity<ApiResponse<ErrorCode>> handlingAppException(AppException exception) {
         ApiResponse<ErrorCode> apiResponse = ApiResponse.error(exception.getErrorCode());
         return ResponseEntity.status(exception.getErrorCode().getHttpStatus()).body(apiResponse);
+    }
+
+    @ExceptionHandler(value = AccessDeniedException.class)
+    ResponseEntity<ApiResponse<ErrorCode>> handlingAccessDeniedException() {
+        ApiResponse<ErrorCode> apiResponse = ApiResponse.error(AuthErrorCode.FORBIDDEN);
+        return ResponseEntity.status(AuthErrorCode.FORBIDDEN.getHttpStatus()).body(apiResponse);
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)

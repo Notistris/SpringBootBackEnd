@@ -11,6 +11,5 @@ import lombok.experimental.FieldDefaults;
 public class AuthenticationResponse {
 
     String token;
-    String refresh_token;
     long duration;
 }
